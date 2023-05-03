@@ -57,7 +57,7 @@ def add_plot(pdf: PDF, plot_function, data: pd.DataFrame, title: str, x_column: 
         plot_function(data, x_column, y_column, title, xlabel, ylabel, show_plot=False)
 
         px, py = padding[0], padding[1]
-        pdf.image(f"../assets/images/plot.png", x=pdf.l_margin + px, y=MARGIN + py, w=width)
+        pdf.image(f"assets/images/plot.png", x=pdf.l_margin + px, y=MARGIN + py, w=width)
     except:
         return
 
@@ -68,7 +68,7 @@ def columns(pdf: PDF, y: int, contents: list[str]):
     for i in range(n_cols):
         if ".png" in contents[i]:
             try:
-                pdf.image(f"../assets/images/{contents[i]}", 
+                pdf.image(f"assets/images/{contents[i]}", 
                           x=(i * col_width), y=y, w=col_width-MARGIN)
             except:
                 continue

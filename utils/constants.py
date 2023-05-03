@@ -1,5 +1,3 @@
-# Description: Constants used
-
 # Colors
 colors_dict = {
     "Main Blue": "#01242D",

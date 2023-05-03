@@ -1,7 +1,9 @@
 # Ignore files
-*.txt
+receivers.txt
 *.ipynb
 *.csv
+*.pdf
+test.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
