@@ -25,3 +25,8 @@ def get_economy_events() -> pd.DataFrame:
 def get_performance_sectors() -> pd.DataFrame:
     return openbb.economy.rtps()
 
+def get_news(about: str, save_df: bool = False) -> pd.DataFrame:
+    df = openbb.news(str(about))
+    if save_df:
+        df.to_csv(f"data/{about.replace(' ', '- ').lower()}-news.csv", index=False)
+    return df

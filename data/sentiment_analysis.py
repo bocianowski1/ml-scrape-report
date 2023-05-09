@@ -42,5 +42,5 @@ def analyze_dataframe(df: pd.DataFrame, content: str, save_df: bool = False) -> 
     df["Sentiment"] = [get_prediction_label(text) for text in df[content]]
     df["Confidence"] = [get_prediction_score(text) for text in df[content]]
     if save_df:
-        df.to_csv(f"sentiment-{random_id()}.csv", index=False)
+        df.to_csv(f"data/sentiment-{random_id()}.csv", index=False)
 

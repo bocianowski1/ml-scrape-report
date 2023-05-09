@@ -11,6 +11,7 @@ colors_dict = {
     "Background/Placeholder White":"#F5F5F7"
 }
 colors = list(colors_dict.values())
+LIGHT_BLUE = colors_dict["Secondary Blue"]
 
 # Fonts
 DEFAULT_FONT = "Instrument Sans"
