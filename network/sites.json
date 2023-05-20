@@ -1,0 +1,92 @@
+{
+  "yahoo": {
+    "base_url": "https://finance.yahoo.com",
+    "topics": {
+      "news": {
+        "economic": {
+          "url": "/topic/economic-news",
+          "table": false,
+          "list": true,
+          "scroll": true,
+          "load": false,
+          "container_tag": "div",
+          "attrs": {
+            "id": "Fin-Stream"
+          }
+        },
+        "earnings": {
+          "url": "/topic/earnings",
+          "table": false,
+          "list": true,
+          "scroll": true,
+          "load": false,
+          "container_tag": "div",
+          "attrs": {
+            "id": "Fin-Stream"
+          }
+        },
+        "stock_market": {
+          "url": "/topic/stock-market-news",
+          "table": false,
+          "list": true,
+          "scroll": true,
+          "load": false,
+          "container_tag": "div",
+          "attrs": {
+            "id": "Fin-Stream"
+          }
+        }
+      },
+      "markets": {}
+    }
+  },
+  "cme": {
+    "base_url": "https://www.cmegroup.com",
+    "topics": {
+      "agricultural": {},
+      "energy": {
+        "oil": {
+          "url": "/trading/energy/crude-and-refined-products.html",
+          "table": true,
+          "list": false
+        },
+        "natural_gas": {
+          "url": "/markets/energy/natural-gas/natural-gas.html",
+          "table": false,
+          "list": false
+        }
+      },
+      "equity_index": {
+        "s_and_p_500": {
+          "url": "/markets/equities/sp/e-mini-sandp500.html",
+          "table": false,
+          "list": false
+        },
+        "nasdaq_100": {
+          "url": "/markets/equities/e-mini-nasdaq-100.html",
+          "table": false,
+          "list": false
+        }
+      },
+      "fx": {
+        "g10": {
+          "url": "/trading/fx/g10.html",
+          "table": true,
+          "list": false,
+          "scroll": false,
+          "load": true
+        },
+        "emerging": {
+          "url": "/trading/fx/emerging-market.html",
+          "table": true,
+          "list": false,
+          "scroll": false,
+          "load": true
+        }
+      },
+      "interest_rates": {},
+      "metals": {},
+      "options": {}
+    }
+  }
+}
