@@ -85,10 +85,12 @@ def get_table_data(url: str, parse_info: dict = None, proxy: str = None) -> list
     if table is None:
         return []
     headers = [header.text for header in table.find_all("th")]
+    if len(headers) == 0:
+        headers = [header.text for header in table.find_all("td")]
     table_rows = table.find_all("tr")[1:]
     if not table_rows:
-        print("no table rows")
         return []
+    print("headers", headers)
 
     data = []
     for row in table_rows:
@@ -112,7 +114,7 @@ def get_list_data(url: str, parse_info: dict = None, proxy: str = None, html_inf
         list_ = soup.find(container_tag, attrs={"id": attrs["id"]}).find(list_tag)
     else:
         list_ = soup.find(list_tag)
-    if list_ is None:
+    if not list_:
         return []
     list_items = list_.find_all("li")
 
