@@ -11,7 +11,7 @@ colors_dict = {
     "Background/Placeholder White":"#F5F5F7"
 }
 colors = list(colors_dict.values())
-LIGHT_BLUE = colors_dict["Secondary Blue"]
+SECONDARY_BLUE = colors_dict["Secondary Blue"]
 
 # Fonts
 DEFAULT_FONT = "Instrument Sans"
@@ -22,3 +22,6 @@ TITLE_FONT_SIZE = 28
 MARGIN = 15
 WIDTH = 210
 HEIGHT = 297
+
+# Paths
+CSV_PATH = "../data/results"

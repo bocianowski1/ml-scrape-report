@@ -5,7 +5,6 @@ import time
 
 # Visualization libraries
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.express as px
 
 # Custom libraries
@@ -20,9 +19,9 @@ class PDF(FPDF):
         self.title = title
 
         # Adding custom fonts
-        self.add_font(DEFAULT_FONT, "", "assets/fonts/ttf/InstrumentSans-Regular.ttf", uni=True)
-        self.add_font(DEFAULT_FONT, "b", "assets/fonts/ttf/InstrumentSans-Bold.ttf", uni=True)
-        self.add_font(DEFAULT_FONT, "i", "assets/fonts/ttf/InstrumentSans-Italic.ttf", uni=True)
+        self.add_font(DEFAULT_FONT, "", instrument_sans("Regular"), uni=True)
+        self.add_font(DEFAULT_FONT, "b", instrument_sans("Bold"), uni=True)
+        self.add_font(DEFAULT_FONT, "i", instrument_sans("Italic"), uni=True)
 
         # Setting fonts
         r, g, b = hex_to_rgb(colors_dict["Primary Dark"])
@@ -61,14 +60,14 @@ class ChartType(Enum):
     PIE = 2
     BAR = 3
 
-def visualization_preprocesser(data: pd.DataFrame, title: str, parent_directory: str, x_column: str, y_column: str):
-    image_filename = file(title)
+def visualization_preprocesser(data: pd.DataFrame, title: str, parent_directory: str, x_column: str, y_column: str) -> tuple[str, str, list, list]:
+    image_filename = to_file(title)
     parent_directory = parent_directory if parent_directory[-1] == "/" else parent_directory + "/"
-    x = string_or_series(data[x_column], data)
-    y = string_or_series(data[y_column], data)
+    x = format_data(data[x_column], data)
+    y = format_data(data[y_column], data)
     return image_filename, parent_directory, x, y
 
-def save_image(pdf: PDF, fig, image_filename: str, parent_directory: str, image_format: str, width: int = None):
+def save_image(pdf: PDF, fig, image_filename: str, parent_directory: str, image_format: str, width: int = None) -> None:
     try:
         fig.write_image(f"{parent_directory}{image_filename}.{image_format}")
         pdf.image(f"{parent_directory}{image_filename}.{image_format}", w=pdf.epw if width is None else width)
@@ -76,17 +75,20 @@ def save_image(pdf: PDF, fig, image_filename: str, parent_directory: str, image_
         return
     
 def visualize(pdf: PDF, chart_type: ChartType, data: pd.DataFrame, x_column: str, y_column: str, title: str,
-              width: int = None, parent_directory: str = "assets/images/", image_format: str = "svg") -> None:
+              width: int = None, parent_directory: str = "assets/images/", image_format: str = "svg", colors: list[str] = None) -> None:
     
     image_filename, parent_directory, x, y = visualization_preprocesser(data, title, parent_directory, x_column, y_column)
     if chart_type == ChartType.LINE:
-        fig = px.line(data, x=x, y=y, color=LIGHT_BLUE)
+        fig = px.line(data, x=x, y=y, color=SECONDARY_BLUE)
     elif chart_type == ChartType.PIE:
-        fig = px.pie(data, values=x, names=y, title=title, color_discrete_sequence=px.colors.sequential.RdBu)
+        if colors is None:
+            colors = px.colors.sequential.RdBu
+        fig = px.pie(data, values=x, names=y, title=title, color_discrete_sequence=colors)
     elif chart_type == ChartType.BAR:
-        fig = px.bar(data, x=x, y=y, color=LIGHT_BLUE)
+        fig = px.bar(data, x=x, y=y, color=SECONDARY_BLUE)
     else:
         raise InputError("Invalid chart type.")
+    fig.update_layout(plot_bgcolor="white")
     save_image(pdf, fig, image_filename, parent_directory, image_format, width)
 
 
@@ -101,11 +103,12 @@ def add_table(pdf: PDF, data: pd.DataFrame, width: int = 160, col_width = (80, 4
         return
 
     with pdf.table(borders_layout="MINIMAL",
-        cell_fill_color=200,  # grey
+        cell_fill_color=200,
         cell_fill_mode="ROWS",
-        line_height=pdf.font_size * 2.5,
+        line_height=DEFAULT_FONT_SIZE * 2.5,
         text_align="CENTER",
         width=width, col_width=col_width) as table:
+
         for data_row in data:
             row = table.row()
             for datum in data_row:

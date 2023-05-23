@@ -1,7 +1,7 @@
 import snscrape.modules.reddit as snreddit
 import pandas as pd
 
-from helpers import random_id
+from ..utils.helpers import random_id
 
 def get_reddit_posts(query: str, limit: int = 100, save_df: bool = False) -> pd.DataFrame:
     posts = []

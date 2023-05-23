@@ -2,7 +2,7 @@ import snscrape.modules.twitter as sntwitter
 import pandas as pd
 # snscrape-0.6.2.20230320
 
-from helpers import random_id
+from ..utils.helpers import random_id
 
 def advanced_query(user: str = None, since: str = "2021-01-01", until: str = None) -> str:
     if user is None:
