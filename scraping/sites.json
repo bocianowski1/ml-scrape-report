@@ -254,5 +254,48 @@
   "euronext": {
     "base_url": "https://live.euronext.com/en/markets/oslo",
     "topics": {}
+  },
+  "marinetraffic": {
+    "base_url": "https://www.marinetraffic.com/en",
+    "topics": {
+      "data": {
+        "vessels": {
+          "url": "/ais/home/centerx:-122.4/centery:37.8/zoom:12",
+          "structure": {
+            "table": true,
+            "list": false,
+            "custom": {}
+          },
+          "parse_info": {
+            "scroll": false,
+            "load": true
+          }
+        },
+        "ports": {
+          "url": "/data/?asset_type=ports&columns=portname,unlocode,vessels_in_port,vessels_departures,vessels_arrivals,vessels_expected_arrivals,local_time,anchorage,geographical_area_one,geographical_area_two",
+          "structure": {
+            "table": true,
+            "list": false,
+            "custom": {}
+          },
+          "parse_info": {
+            "scroll": false,
+            "load": true
+          }
+        },
+        "stations": {
+          "url": "/data/?asset_type=stations&columns=country,station_name,status,last_signal,availability,max_distance,avg_distance,area_covered",
+          "structure": {
+            "table": true,
+            "list": false,
+            "custom": {}
+          },
+          "parse_info": {
+            "scroll": false,
+            "load": true
+          }
+        }
+      }
+    }
   }
 }
