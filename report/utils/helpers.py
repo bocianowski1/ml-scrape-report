@@ -18,6 +18,3 @@ def format_data(column, dataframe: pd.DataFrame) -> list:
         return column
     else:
         raise TypeError("Column must be a string or a pandas Series")
-
-def random_id(a: int = 1000, b: int = 9999) -> int:
-    return random.randint(a, b)

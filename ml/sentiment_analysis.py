@@ -6,10 +6,10 @@ import pandas as pd
 import os
 from typing import Tuple
 
-from ..utils.constants import CSV_PATH
-from ..utils.helpers import random_id
+from utils.helpers import random_id
 from preprocessing import preprocess_text
 
+CSV_PATH = "../data/results"
 
 def load_model() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer, list[str]]:
     roberta = "cardiffnlp/twitter-roberta-base-sentiment"

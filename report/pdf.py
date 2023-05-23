@@ -10,7 +10,6 @@ import plotly.express as px
 # Custom libraries
 from utils.helpers import *
 from utils.constants import *
-from utils.errors import PlotError, InputError
 
 class PDF(FPDF):
     def __init__(self, title, **kwargs):
@@ -71,7 +70,7 @@ def save_image(pdf: PDF, fig, image_filename: str, parent_directory: str, image_
     try:
         fig.write_image(f"{parent_directory}{image_filename}.{image_format}")
         pdf.image(f"{parent_directory}{image_filename}.{image_format}", w=pdf.epw if width is None else width)
-    except PlotError:
+    except:
         return
     
 def visualize(pdf: PDF, chart_type: ChartType, data: pd.DataFrame, x_column: str, y_column: str, title: str,
@@ -87,7 +86,7 @@ def visualize(pdf: PDF, chart_type: ChartType, data: pd.DataFrame, x_column: str
     elif chart_type == ChartType.BAR:
         fig = px.bar(data, x=x, y=y, color=SECONDARY_BLUE)
     else:
-        raise InputError("Invalid chart type.")
+        raise TypeError("Invalid chart type.")
     fig.update_layout(plot_bgcolor="white")
     save_image(pdf, fig, image_filename, parent_directory, image_format, width)
 
@@ -99,7 +98,7 @@ def add_table(pdf: PDF, data: pd.DataFrame, width: int = 160, col_width = (80, 4
         columns = [list(data)]
         rows = data.values.tolist()
         data = columns + rows
-    except InputError:
+    except:
         return
 
     with pdf.table(borders_layout="MINIMAL",

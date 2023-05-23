@@ -1,10 +1,9 @@
-# from openbb import *
-import pandas as pd
-from pdf import PDF, ChartType, visualize
+from report.pdf import PDF
 from dotenv import load_dotenv
 
 
 def main() -> None:
+    load_dotenv()
     pdf = PDF(title="Pelagi Daily Report")
     
     pdf.output("pelagi-report.pdf")

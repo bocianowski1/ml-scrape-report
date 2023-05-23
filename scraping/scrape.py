@@ -10,8 +10,10 @@ from selenium.webdriver.common.by import By
 
 from ..ml.sentiment_analysis import get_sentiment
 
-from helpers import clean_value
-from ..utils.classes import NewsArticle
+from utils.helpers import clean_value
+from utils.classes import NewsArticle
+
+print(clean_value("1,000,000,000"))
 
 CONNECTOR_LIMIT = 50
 
@@ -236,15 +238,15 @@ async def scrape() -> list[dict]:
     return result
 
 
-if __name__ == "__main__":
-    start_time = time.time()
+# if __name__ == "__main__":
+#     start_time = time.time()
 
-    loop = asyncio.get_event_loop()
-    data = loop.run_until_complete(scrape())
+#     loop = asyncio.get_event_loop()
+#     data = loop.run_until_complete(scrape())
 
-    elapsed_time = time.time() - start_time
-    for news in data:
-        print(news, len(news))
-        print()
-    print(len(data))
-    print(f"Elapsed time: {elapsed_time}")
+#     elapsed_time = time.time() - start_time
+#     for news in data:
+#         print(news, len(news))
+#         print()
+#     print(len(data))
+#     print(f"Elapsed time: {elapsed_time}")
