@@ -1,5 +1,4 @@
 import pandas as pd
-import random
 
 def hex_to_rgb(hex: str) -> tuple[int, int, int]:
     hex = hex.lstrip('#')

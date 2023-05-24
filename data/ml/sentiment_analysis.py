@@ -2,23 +2,47 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
 import openai
 import torch
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+import re
 import pandas as pd
 import os
-from typing import Tuple
+from datetime import datetime
 
-from utils.helpers import random_id
-from preprocessing import preprocess_text
+CSV_PATH = "../results"
 
-CSV_PATH = "../data/results"
+def current_time() -> str:
+    return datetime.now().strftime("%H:%M:%S")
 
-def load_model() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer, list[str]]:
+def preprocess_text(text: str) -> str:
+    text = text.lower()
+
+    text = re.sub(r"http\S+|www\S+|https\S+", "", text)
+    text = re.sub(r"@\w+", "@user", text)
+    text = re.sub(r"[^\w\s]", "", text)
+    text = re.sub(r"\s+", " ", text)
+
+    words = word_tokenize(text)
+
+    stop_words = set(stopwords.words("english"))
+    words = [word for word in words if word not in stop_words]
+
+    lemmatizer = WordNetLemmatizer()
+    words = [lemmatizer.lemmatize(word) for word in words]
+
+    preprocessed_text = " ".join(words)
+    return preprocessed_text
+
+def load_model():
     roberta = "cardiffnlp/twitter-roberta-base-sentiment"
-    model = AutoModelForSequenceClassification.from_pretrained(roberta)
+    model = AutoModelForSequenceClassification.from_pretrained(roberta, max_length=512)
     tokenizer = AutoTokenizer.from_pretrained(roberta)
     labels = ["Negative", "Neutral", "Positive"]
     return model, tokenizer, labels
 
-def get_sentiment(text: str, model, tokenizer, labels) -> Tuple[str, float]:
+def get_sentiment(text, model, tokenizer, labels):
     encoded_text = tokenizer(preprocess_text(text), return_tensors="pt")
     output = model(**encoded_text)
 
@@ -27,8 +51,11 @@ def get_sentiment(text: str, model, tokenizer, labels) -> Tuple[str, float]:
 
     return labels[scores.argmax()], scores.max()
 
-def analyze_dataframe(df: pd.DataFrame, content: str, model, tokenizer, labels, save_df: bool = False) -> None:
-    texts = df[content].tolist()
+def analyze_dataframe(df, texts, model, tokenizer, labels, save_df: bool = False) -> None:
+    if isinstance(texts, pd.Series):
+        texts = texts.tolist()
+    texts = [preprocess_text(text) for text in texts]
+    print("Preprocessed texts")
 
     sentiments = []
     confidences = []
@@ -45,12 +72,14 @@ def analyze_dataframe(df: pd.DataFrame, content: str, model, tokenizer, labels, 
         )
         outputs = model(**encoded_texts)
         logits = outputs.logits
+        logits = logits.detach().numpy()
 
         batch_scores = softmax(logits, axis=1)
+        batch_scores = torch.from_numpy(batch_scores)
         batch_preds = torch.argmax(batch_scores, dim=1)
 
         for j, pred in enumerate(batch_preds):
-            print(f"{j}/{len(batch_preds)}")
+            print(f"{j}/{len(batch_preds)}", end="\r")
             sentiment = labels[pred]
             confidence = batch_scores[j][pred].item()
             sentiments.append(sentiment)
@@ -60,7 +89,7 @@ def analyze_dataframe(df: pd.DataFrame, content: str, model, tokenizer, labels, 
     df["Confidence"] = confidences
 
     if save_df:
-        df.to_csv(f"{CSV_PATH}/sentiment-{random_id()}.csv", index=False)
+        df.to_csv(f"{CSV_PATH}/sentiment-analysis-{current_time()}.csv", index=False)
 
 class Term:
     SHORT = "short"
@@ -94,11 +123,3 @@ def create_response(prompt: str) -> str:
         return response["choices"][0]["text"]
     except Exception as e:
         return f"ERROR: {e}"
-
-# For testing
-headline = "Rimini Street Fined $630,000 in Case Against Oracle"
-company_name = "Oracle"
-
-# prompt = create_sentiment_prompt(headline, company_name)
-# response = create_response(prompt)
-# print(response)

@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.message import EmailMessage
 import smtplib
 
+EMAIL_SENDER = "torgerboc@gmail.com"
 
 def format_receivers(receivers) -> str:
     if not isinstance(receivers, str) and not isinstance(receivers, list):
@@ -16,7 +17,7 @@ def format_receivers(receivers) -> str:
         return ", ".join(receivers)
     return receivers
 
-def get_receiver_emails(filepath: str = "receivers.txt") -> str:
+def receiver_emails(filepath: str = "receivers.txt") -> str:
     with open(filepath, "r") as f:
         return format_receivers(f.read())
 
@@ -28,10 +29,10 @@ def attach_pdf(email: EmailMessage, pdf_path: str) -> None:
 
 def send_email(body: str, receivers: str = None, subject: str = "Weekly Report", 
                pdf_path: str = "../../pelagi-report.pdf") -> None:
-    sender = "torgerboc@gmail.com" # pelagi@gmail.com
+    sender = EMAIL_SENDER # pelagi@gmail.com
     email = MIMEMultipart()
     email["from"] = sender
-    email["to"] = format_receivers(receivers) if receivers else get_receiver_emails()
+    email["to"] = format_receivers(receivers) if receivers else receiver_emails()
     email["subject"] = subject
     email.attach(MIMEText(body, "plain"))
 
@@ -43,8 +44,3 @@ def send_email(body: str, receivers: str = None, subject: str = "Weekly Report",
         server.send_message(email)
         print("Email sent successfully.")
 
-
-body = """
-Wanna get rich quick? Buy PelagiCoin now!
-"""
-# send_email(body)

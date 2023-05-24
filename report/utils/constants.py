@@ -23,5 +23,3 @@ MARGIN = 15
 WIDTH = 210
 HEIGHT = 297
 
-# Paths
-CSV_PATH = "../data/results"
