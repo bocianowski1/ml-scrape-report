@@ -5,16 +5,18 @@ import torch
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+import joblib
 
 import re
 import pandas as pd
 import os
-from datetime import datetime
 
-CSV_PATH = "../results"
+from .utils.helpers import current_time
 
-def current_time() -> str:
-    return datetime.now().strftime("%H:%M:%S")
+ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
+DATA_PATH = ABSOLUTE_PATH + "data/"
+ML_PATH = DATA_PATH + "ml/"
+RESULTS_PATH = DATA_PATH + "results/"
 
 def preprocess_text(text: str) -> str:
     text = text.lower()
@@ -36,10 +38,19 @@ def preprocess_text(text: str) -> str:
     return preprocessed_text
 
 def load_model():
-    roberta = "cardiffnlp/twitter-roberta-base-sentiment"
-    model = AutoModelForSequenceClassification.from_pretrained(roberta, max_length=512)
-    tokenizer = AutoTokenizer.from_pretrained(roberta)
-    labels = ["Negative", "Neutral", "Positive"]
+    try:
+        model, tokenizer, labels = joblib.load(ABSOLUTE_PATH + 'cached_model.joblib')
+        print("Cached model loaded.")
+    except FileNotFoundError:
+        print("Downloading model...")
+        roberta = "cardiffnlp/twitter-roberta-base-sentiment"
+        model = AutoModelForSequenceClassification.from_pretrained(roberta, max_length=512)
+        tokenizer = AutoTokenizer.from_pretrained(roberta)
+        labels = ["Negative", "Neutral", "Positive"]
+        
+        joblib.dump((model, tokenizer, labels), ABSOLUTE_PATH + 'cached_model.joblib')
+        print("Model downloaded and cached.")
+    
     return model, tokenizer, labels
 
 def get_sentiment(text, model, tokenizer, labels):
@@ -49,7 +60,7 @@ def get_sentiment(text, model, tokenizer, labels):
     scores = output.logits[0].detach().numpy()
     scores = softmax(scores)
 
-    return labels[scores.argmax()], scores.max()
+    return labels[scores.argmax()], round(scores.max(), 4)
 
 def analyze_dataframe(df, texts, model, tokenizer, labels, save_df: bool = False) -> None:
     if isinstance(texts, pd.Series):
@@ -89,7 +100,7 @@ def analyze_dataframe(df, texts, model, tokenizer, labels, save_df: bool = False
     df["Confidence"] = confidences
 
     if save_df:
-        df.to_csv(f"{CSV_PATH}/sentiment-analysis-{current_time()}.csv", index=False)
+        df.to_csv(f"{RESULTS_PATH}/sentiment-analysis-{current_time()}.csv", index=False)
 
 class Term:
     SHORT = "short"

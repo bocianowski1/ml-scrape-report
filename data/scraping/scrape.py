@@ -1,23 +1,13 @@
 import asyncio
-import json
 import aiohttp
-import time
-import csv
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
+import time
 
-# import sys
-# import os
-
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-# from ml.sentiment_analysis import get_sentiment
-
-from .utils.helpers import clean_value
+from .utils.helpers import soupify, clean_value, get_sites, get_proxies, random_index
+from .utils.helpers import print_progress, print_results
+from .browser.selenium_browser import parse
+from ..ml.sentiment_analysis import get_sentiment
+from ..database.db import write_to_db
 
 
 CONNECTOR_LIMIT = 50
@@ -26,78 +16,6 @@ DATA_PATH = ABSOLUTE_PATH + "data/"
 SCRAPING_PATH = DATA_PATH + "scraping/"
 RESULTS_PATH = DATA_PATH + "results/"
 
-def get_sites(test: bool = False) -> dict:
-    json_file = "test.sites.json" if test else "sites.json"
-    json_file = SCRAPING_PATH + json_file
-    return json.loads(open(json_file).read())
-
-def write_csv(headers: list, data: list, filename: str):
-    if not filename.endswith(".csv"):
-        filename = filename + ".csv"
-    if not filename.startswith("/"):
-        filename = "/" + filename
-    with open(RESULTS_PATH + filename, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
-        writer.writeheader()
-        writer.writerows(data)
-
-async def soupify(session: aiohttp.ClientSession, url: str, proxy: str = None) -> BeautifulSoup:
-    try:
-        async with session.get(url, proxy=proxy) as response:
-            if response.status != 200:
-                print(f"\nERROR @ soupify()\nstatus code: {response.status}")
-                return None
-            content = await response.text()
-            return BeautifulSoup(content, "html.parser")
-    except Exception as e:
-        print(f"\nERROR @ soupify()")
-        print(e)
-        return None
-
-def set_options() -> Options:
-    options = Options()
-    options.headless = True
-    options.set_preference("dom.disable_beforeunload", True)
-    options.set_preference("intl.accept_languages", "en-US")
-    return options
-
-async def parse(url: str, sleep: float = 1.0, popup: dict = None, scroll: bool = False,
-                load: bool = False) -> str:
-    if not scroll and not load:
-        return url
-    try:
-        response = webdriver.Firefox(options=set_options())
-        response.get(url)
-        if scroll:
-            scroll_down(response, popup=popup)
-        elif load:
-            print("loading...")
-            await asyncio.sleep(sleep)
-        html = response.page_source
-        response.quit()
-        return html
-    except Exception as e:
-        print(f"\nERROR @ parse()\nurl: {url}")
-        print(e)
-        return url
-
-def scroll_down(driver: webdriver.Firefox, sleep: float = 0.5, popup: dict = None, num_iters: int = 5) -> None:
-    print("enter scroll_down()")
-    if popup:
-        try:
-            if popup["scroll_button"]:
-                driver.find_element_by_id(popup["scroll_button"]).click()
-            driver.find_element_by_name(popup["reject"]).click()
-        except Exception as e:
-            print(f"\nERROR @ scroll_down()\n{e}")
-            return None
-
-    print("scrolling...")
-    for _ in range(num_iters):
-        html = driver.find_element(By.TAG_NAME, 'html')
-        html.send_keys(Keys.END)
-        time.sleep(sleep)
-    print()
 
 async def get_table_data(session: aiohttp.ClientSession, url: str, parse_info: dict = None, proxy: str = None) -> list[dict]:
     async with session:
@@ -132,10 +50,12 @@ async def get_table_data(session: aiohttp.ClientSession, url: str, parse_info: d
                     pass
                 item[headers[i]] = val
             data.append(item)
+        # if filename:
+        #     write_csv(headers, data, filename)
         return data
 
 async def get_list_data(session: aiohttp.ClientSession, url: str, parse_info: dict = None, proxy: str = None,
-                        html_info: dict = None, filename: str = None) -> list[dict]:
+                        html_info: dict = None, model_params: tuple = None) -> list[dict]:
     async with session:
         if parse_info["scroll"] or parse_info["load"]:
             url = await parse(url, **parse_info, popup=html_info["popup"])
@@ -160,49 +80,17 @@ async def get_list_data(session: aiohttp.ClientSession, url: str, parse_info: di
             headline = item.find(header_tag).text
             description = item.find(description_tag).text
             if headline and description:
-                data.append({
-                    "headline": headline,
-                    "description": description,
-                })
+                # data.append(NewsArticle(headline=headline, description=description))
+                text = headline + "\n\n" + description
+                sentiment, confidence = get_sentiment(text, *model_params)
+                write_to_db("news", (headline, description, sentiment, str(confidence)))
             else:
                 continue
-        if filename:
-            headers = ["headline", "description"]
-            filename = f"{filename}.csv"
-            write_csv(headers, data, filename)
-        return data
-    
-async def get_custom_data(session: aiohttp.ClientSession, url: str, custom: dict, parse_info: dict = None, proxy: str = None) -> list[dict]:
-    async with session:
-        if parse_info["scroll"] or parse_info["load"]:
-            url = await parse(url, **parse_info, sleep=3.0)
-            soup = BeautifulSoup(url, "html.parser")
-        else:
-            soup = await soupify(session, url, proxy)
-            if not soup:
-                raise Exception("Could not soupify")
-            
-        if custom["type"]["table"]:
-            table = custom["type"]["table"]
-            body = table["body"]
-            header = body["header"]
-            rows = body["rows"]
-
-            result = soup.find(body["tag"], attrs={"role": body["role"], "class": body["class"]})
-            # header_html = body_html.find(header["tag"], attrs={"role": header["role"], "class": header["class"]})
-            # rows_html = body_html.find_all(rows["tag"], attrs={"role": rows["role"], "class": rows["class"]})
-            print(result, "result")
-        data = []
-        return data
-        
-
-def get_proxies(filename: str = "proxies.txt") -> list[str]:
-    proxy_list_file = SCRAPING_PATH + filename
-    with open(proxy_list_file) as f:
-        return f.read().splitlines()
+        # return data
 
 
-async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict, topic: str, subtopic: str, result: list[dict]):
+async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict, 
+                      topic: str, subtopic: str, result: list[dict], model_params: tuple = None) -> None:
     base_url = site["base_url"]
     current = site["topics"][topic][subtopic]
     url = base_url + current["url"]
@@ -212,39 +100,32 @@ async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict, to
         try:
             data = await get_table_data(session, url, parse_info=parse_info, proxy=proxy)
             result.append(data)
-            print("-" * 100)
-            print(data, len(data))
-            print("-" * 100)
+            print_progress(data)
         except Exception as e:
-            print(f"\nERROR @ scrape() [table]\nurl: {url}")
+            print(f"\nERROR @ scrape_site() [table]\nurl: {url}")
             print(e)
     elif current["structure"]["list"]:
         print(f"scraping {url}")
         html_info = current["html_info"]
         try:
-            data = await get_list_data(session, url, parse_info=parse_info, proxy=proxy, html_info=html_info, filename=f"{topic}_{subtopic}")
-            result.append({
-                "topic": topic,
-                "subtopic": subtopic,
-                "data": data
-            })
-            print("-" * 100)
-            print(data, len(data))
-            print("-" * 100)
+            data = await get_list_data(session, url, parse_info=parse_info, proxy=proxy, 
+                                       html_info=html_info, model_params=model_params)
+            result.append(data)
+            # print_progress(data)
         except Exception as e:
-            print(f"\nERROR @ scrape() [list]\nurl: {url}")
+            print(f"\nERROR @ scrape_site() [list]\nurl: {url}")
             print(e)
     else:
         print(f"not table or list {url}")
 
 
-async def scrape(test=False) -> list[dict]:
+async def scrape(test=False, model_params: tuple = None) -> list[dict]:
     proxies = get_proxies()
     sites = get_sites(test=test)
 
     result = []
     tasks = []
-    counter = 0
+    n = len(proxies)
     connector = aiohttp.TCPConnector(limit=CONNECTOR_LIMIT)
     async with aiohttp.ClientSession(connector=connector) as session:
         for site in sites:
@@ -252,11 +133,9 @@ async def scrape(test=False) -> list[dict]:
             for topic in topics:
                 subtopics = topics[topic]
                 for subtopic in subtopics:
-                    proxy = proxies[counter]
-                    task = scrape_site(session, proxy, sites[site], topic, subtopic, result)
+                    proxy = proxies[random_index(n)]
+                    task = scrape_site(session, proxy, sites[site], topic, subtopic, result, model_params)
                     tasks.append(task)
-                    if counter == len(proxies) - 1:
-                        counter = 0
                     await asyncio.sleep(0.1)
         await asyncio.gather(*tasks)
     return result
@@ -269,8 +148,5 @@ async def scrape(test=False) -> list[dict]:
 #     data = loop.run_until_complete(scrape())
 
 #     elapsed_time = time.time() - start_time
-#     for news in data:
-#         print(news, len(news))
-#         print()
-#     print(len(data))
+#     print_results(data)
 #     print(f"Elapsed time: {elapsed_time}")
