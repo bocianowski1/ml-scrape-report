@@ -17,7 +17,7 @@ SCRAPING_PATH = DATA_PATH + "scraping/"
 RESULTS_PATH = DATA_PATH + "results/"
 
 
-async def get_table_data(session: aiohttp.ClientSession, url: str, parse_info: dict = None, proxy: str = None) -> list[dict]:
+async def get_table_data(session: aiohttp.ClientSession, url: str, db_name: str, parse_info: dict = None, proxy: str = None) -> list[dict]:
     async with session:
         if parse_info["scroll"] or parse_info["load"]:
             url = await parse(url, **parse_info)
@@ -50,12 +50,13 @@ async def get_table_data(session: aiohttp.ClientSession, url: str, parse_info: d
                     pass
                 item[headers[i]] = val
             data.append(item)
+            # write_to_db(db_name, tuple(item.values()))
         # if filename:
         #     write_csv(headers, data, filename)
         return data
 
-async def get_list_data(session: aiohttp.ClientSession, url: str, parse_info: dict = None, proxy: str = None,
-                        html_info: dict = None, model_params: tuple = None) -> list[dict]:
+async def get_list_data(session: aiohttp.ClientSession, url: str, db_name: str, parse_info: dict = None, proxy: str = None,
+                        html_info: dict = None, model_params: tuple = None):
     async with session:
         if parse_info["scroll"] or parse_info["load"]:
             url = await parse(url, **parse_info, popup=html_info["popup"])
@@ -64,18 +65,18 @@ async def get_list_data(session: aiohttp.ClientSession, url: str, parse_info: di
             soup = await soupify(session, url, proxy)
             if not soup:
                 raise Exception("Could not soupify")
-        container_tag, list_tag, header_tag, description_tag = html_info["container_tag"], html_info["list_tag"], \
-                                                               html_info["header_tag"], html_info["description_tag"]
-        attrs = html_info["attrs"]
+        container_tag, list_tag, header_tag, description_tag, attrs = html_info["container_tag"], html_info["list_tag"], \
+                                                                html_info["header_tag"], html_info["description_tag"], \
+                                                                html_info["attrs"]
         if container_tag:
             list_ = soup.find(container_tag, attrs={"id": attrs["id"]}).find(list_tag)
         else:
             list_ = soup.find(list_tag)
         if not list_:
-            return []
+            return
         list_items = list_.find_all("li")
 
-        data = []
+        # data = []
         for item in list_items:
             headline = item.find(header_tag).text
             description = item.find(description_tag).text
@@ -83,11 +84,10 @@ async def get_list_data(session: aiohttp.ClientSession, url: str, parse_info: di
                 # data.append(NewsArticle(headline=headline, description=description))
                 text = headline + "\n\n" + description
                 sentiment, confidence = get_sentiment(text, *model_params)
-                write_to_db("news", (headline, description, sentiment, str(confidence)))
+                write_to_db(db_name, (headline, description, sentiment, str(confidence)))
             else:
                 continue
         # return data
-
 
 async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict, 
                       topic: str, subtopic: str, result: list[dict], model_params: tuple = None) -> None:
@@ -95,10 +95,11 @@ async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict,
     current = site["topics"][topic][subtopic]
     url = base_url + current["url"]
     parse_info = current["parse_info"]
+    db_name = current["db_name"]
     if current["structure"]["table"]:
         print(f"scraping {url}")
         try:
-            data = await get_table_data(session, url, parse_info=parse_info, proxy=proxy)
+            data = await get_table_data(session, url, db_name, parse_info=parse_info, proxy=proxy)
             result.append(data)
             print_progress(data)
         except Exception as e:
@@ -108,7 +109,7 @@ async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict,
         print(f"scraping {url}")
         html_info = current["html_info"]
         try:
-            data = await get_list_data(session, url, parse_info=parse_info, proxy=proxy, 
+            data = await get_list_data(session, url, db_name, parse_info=parse_info, proxy=proxy, 
                                        html_info=html_info, model_params=model_params)
             result.append(data)
             # print_progress(data)
@@ -117,7 +118,6 @@ async def scrape_site(session: aiohttp.ClientSession, proxy: str, site: dict,
             print(e)
     else:
         print(f"not table or list {url}")
-
 
 async def scrape(test=False, model_params: tuple = None) -> list[dict]:
     proxies = get_proxies()

@@ -4,6 +4,7 @@
     "topics": {
       "news": {
         "economic": {
+          "db_name": "yahoo_news_economic",
           "url": "/topic/economic-news",
           "structure": {
             "table": false,
@@ -29,6 +30,7 @@
           }
         },
         "earnings": {
+          "db_name": "yahoo_news_earnings",
           "url": "/topic/earnings",
           "structure": {
             "table": false,
@@ -54,6 +56,7 @@
           }
         },
         "stock_market": {
+          "db_name": "yahoo_news_stock_market",
           "url": "/topic/stock-market-news",
           "structure": {
             "table": false,
@@ -81,6 +84,7 @@
       },
       "markets": {
         "trending_tickers": {
+          "db_name": "yahoo_markets_trending_tickers",
           "url": "/trending-tickers",
           "structure": {
             "table": true,
@@ -93,6 +97,7 @@
           }
         },
         "most_actives": {
+          "db_name": "yahoo_markets_most_actives",
           "url": "/most-active",
           "structure": {
             "table": true,
@@ -105,6 +110,7 @@
           }
         },
         "gainers": {
+          "db_name": "yahoo_markets_gainers",
           "url": "/gainers",
           "structure": {
             "table": true,
@@ -117,6 +123,7 @@
           }
         },
         "losers": {
+          "db_name": "yahoo_markets_losers",
           "url": "/losers",
           "structure": {
             "table": true,
@@ -129,6 +136,7 @@
           }
         },
         "futures": {
+          "db_name": "yahoo_markets_futures",
           "url": "/futures",
           "structure": {
             "table": true,
@@ -141,6 +149,7 @@
           }
         },
         "world_indices": {
+          "db_name": "yahoo_markets_world_indices",
           "url": "/world-indices",
           "structure": {
             "table": true,
@@ -153,6 +162,7 @@
           }
         },
         "currencies": {
+          "db_name": "yahoo_markets_currencies",
           "url": "/currencies",
           "structure": {
             "table": true,
@@ -165,6 +175,7 @@
           }
         },
         "options_volatility": {
+          "db_name": "yahoo_markets_options_volatility",
           "url": "/options/highest-implied-volatility",
           "structure": {
             "table": true,
@@ -177,6 +188,7 @@
           }
         },
         "options_most_active": {
+          "db_name": "yahoo_markets_options_most_active",
           "url": "/options/most-active",
           "structure": {
             "table": true,
@@ -197,6 +209,7 @@
       "agricultural": {},
       "energy": {
         "oil": {
+          "db_name": "cme_energy_oil",
           "url": "/trading/energy/crude-and-refined-products.html",
           "structure": {
             "table": true,
@@ -209,6 +222,7 @@
           }
         },
         "natural_gas": {
+          "db_name": "cme_energy_natural_gas",
           "url": "/markets/energy/natural-gas/natural-gas.html",
           "structure": {
             "table": false,
@@ -223,6 +237,7 @@
       },
       "equity_index": {
         "s_and_p_500": {
+          "db_name": "cme_equity_index_s_and_p_500",
           "url": "/markets/equities/sp/e-mini-sandp500.html",
           "structure": {
             "table": false,
@@ -235,6 +250,7 @@
           }
         },
         "nasdaq_100": {
+          "db_name": "cme_equity_index_nasdaq_100",
           "url": "/markets/equities/e-mini-nasdaq-100.html",
           "structure": {
             "table": false,
@@ -249,6 +265,7 @@
       },
       "fx": {
         "g10": {
+          "db_name": "cme_fx_g10",
           "url": "/trading/fx/g10.html",
           "structure": {
             "table": true,
@@ -261,6 +278,7 @@
           }
         },
         "emerging": {
+          "db_name": "cme_fx_emerging",
           "url": "/trading/fx/emerging-market.html",
           "structure": {
             "table": true,
@@ -275,6 +293,7 @@
       },
       "interest_rates": {
         "treasury": {
+          "db_name": "cme_interest_rates_treasury",
           "url": "/trading/interest-rates/us-treasury/us-treasury.html",
           "structure": {
             "table": true,
@@ -320,6 +339,7 @@
     "topics": {
       "interest_rates": {
         "central_banks": {
+          "db_name": "gr_interest_rates_central_banks",
           "url": "/interest-rates/central-banks/central-banks.aspx",
           "structure": {
             "table": true,
@@ -332,6 +352,7 @@
           }
         },
         "libor": {
+          "db_name": "gr_interest_rates_libor",
           "url": "/interest-rates/libor/libor.aspx",
           "structure": {
             "table": true,
@@ -346,6 +367,7 @@
       },
       "economic_indicators": {
         "inflation": {
+          "db_name": "gr_economic_indicators_inflation",
           "url": "/economic-indicators/inflation/inflation.aspx",
           "structure": {
             "table": true,

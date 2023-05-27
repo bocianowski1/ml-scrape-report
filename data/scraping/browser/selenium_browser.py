@@ -48,4 +48,3 @@ def scroll_down(driver: webdriver.Firefox, sleep: float = 0.5, popup: dict = Non
         html = driver.find_element(By.TAG_NAME, 'html')
         html.send_keys(Keys.END)
         time.sleep(sleep)
-    print()

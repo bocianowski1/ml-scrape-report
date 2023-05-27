@@ -58,13 +58,13 @@ def insert_data(db: str, columns: dict = None) -> str:
     query = query[:-2] + ")"
     return query
 
-def write_to_db(db: str, data: tuple) -> None:
+def write_to_db(db: str, data: tuple, columns: dict = None) -> None:
     conn = connect(db)
     cursor = conn.cursor()
 
     try:
-        cursor.execute(create_table(db))
-        cursor.execute(insert_data(db), data)
+        cursor.execute(create_table(db, columns))
+        cursor.execute(insert_data(db, columns), data)
         conn.commit()
     except sqlite3.IntegrityError:
         print("Data already exists in database")
