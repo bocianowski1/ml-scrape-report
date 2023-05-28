@@ -4,7 +4,7 @@ import time
 
 # from report.pdf import PDF
 from data.scraping.scrape import scrape
-from data.database.db import drop_table
+from data.database.db import drop_all_tables, drop_table
 from data.ml.sentiment_analysis import load_model
 
 # def make_report():
@@ -12,20 +12,19 @@ from data.ml.sentiment_analysis import load_model
 #     pdf.output("pelagi-report.pdf")
 
 
-def main() -> None:
+def main(test=False) -> None:
     start_time = time.time()
-    drop_table("news")
+    # drop_all_tables(test)
     load_dotenv()
     print("Starting...")
     model_params = load_model()
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(scrape(test=True, model_params=model_params))
-    # data = loop.run_until_complete(scrape(test=True))
+    loop.run_until_complete(scrape(test, model_params))
 
     elapsed_time = time.time() - start_time
     print(f"\nElapsed time: {elapsed_time}")
 
 
 if __name__ == "__main__":
-    main()
+    main(test=True)

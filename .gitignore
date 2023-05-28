@@ -5,6 +5,7 @@ receivers.txt
 *.pdf
 test.*
 *joblib
+*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -94,6 +94,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "most_actives": {
@@ -107,6 +113,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "gainers": {
@@ -120,6 +132,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "losers": {
@@ -133,6 +151,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "futures": {
@@ -146,6 +170,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "world_indices": {
@@ -159,6 +189,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "currencies": {
@@ -172,6 +208,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "options_volatility": {
@@ -185,6 +227,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         },
         "options_most_active": {
@@ -198,6 +246,12 @@
           "parse_info": {
             "scroll": false,
             "load": false
+          },
+          "html_info": {
+            "popup": {
+              "scroll_button": "scroll-down-btn",
+              "reject": "reject"
+            }
           }
         }
       }

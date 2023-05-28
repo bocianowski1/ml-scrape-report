@@ -1,37 +1,42 @@
 import csv
 import json
-import aiohttp
-from bs4 import BeautifulSoup
 import random
-
+import re
 
 ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
 DATA_PATH = ABSOLUTE_PATH + "data/"
 SCRAPING_PATH = DATA_PATH + "scraping/"
 RESULTS_PATH = DATA_PATH + "results/"
 
-async def soupify(session: aiohttp.ClientSession, url: str, proxy: str = None) -> BeautifulSoup:
-    try:
-        async with session.get(url, proxy=proxy) as response:
-            if response.status != 200:
-                print(f"\nERROR @ soupify()\nstatus code: {response.status}")
-                return None
-            content = await response.text()
-            return BeautifulSoup(content, "html.parser")
-    except Exception as e:
-        print(f"\nERROR @ soupify()")
-        print(e)
-        return None
-
 def clean_value(value: str) -> str:
-    value = value.strip()
-    if value == '-':
-        return None
+    if isinstance(value, bool) or isinstance(value, tuple):
+        return str(value)
+    if isinstance(value, float) or isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        value = value.lower().strip()
+        if value == '-' or value == "n/a" or value == "nan" or value == "none" or value == "" or value == " ":
+            return "NULL"
+        if value.startswith("$") or value.startswith("€") or value.startswith("£") or value.startswith("+") or value.startswith("-"):
+            value = value[1:]
+        if value.endswith("%"):
+            value = value[:-1]
     try:
         return float(value.replace(",", ""))
     except ValueError:
         return value
-    
+
+def clean_data(data: tuple) -> tuple:
+    return tuple([clean_value(value) for value in data])
+
+def clean_column_name(name: str) -> str:
+    if name.startswith("%"):
+        name = "perc_" + name[1:]
+    cleaned_string = re.sub(r'[^a-zA-Z0-9 ]', '', name).strip()
+    if "52" in cleaned_string:
+        cleaned_string = cleaned_string.replace("52", "fifty_two")
+    return cleaned_string.replace(' ', '_').lower()
+
 def random_index(length: int) -> int:
     return random.randint(0, length - 1)
     
