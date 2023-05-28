@@ -34,16 +34,23 @@ def connect(db: str) -> sqlite3.Connection:
         db = db[:-3]
     return sqlite3.connect(DATABASE_PATH + db.lower() + ".db")
 
-def create_table(db: str, columns: dict = None) -> str:
+def create_table(db: str, columns: dict = None, index_column: str = None) -> str:
     if db.endswith(".db"):
         db = db[:-3]
     if "news" in db.lower():
         columns = news_columns()
+        index_column = "headline"
     query = f"CREATE TABLE IF NOT EXISTS {db} (id INTEGER PRIMARY KEY, "
     for column, data_type in columns.items():
         query += f"{column} {data_type}, "
-    query = query[:-2] + ")"
+    query = query[:-2]
+    query += "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)"
+    
+    if index_column:
+        query += f";\nCREATE INDEX IF NOT EXISTS {index_column}_index ON {db} ({index_column})"
+    
     return query
+
 
 def insert_data(db: str, columns: dict = None) -> str:
     if db.endswith(".db"):

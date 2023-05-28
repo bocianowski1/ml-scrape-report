@@ -93,7 +93,7 @@ async def get_list_data(session: aiohttp.ClientSession, url: str, db_name: str, 
                 # data.append(NewsArticle(headline=headline, description=description))
                 text = headline + "\n\n" + description
                 sentiment, confidence = get_sentiment(text, *model_params)
-                write_to_db(db_name, (headline, description, sentiment, str(confidence)))
+                write_to_db(db_name, (headline, description, sentiment, str(confidence)), columns=None)
             else:
                 continue
         # return data
