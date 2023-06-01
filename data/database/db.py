@@ -1,10 +1,9 @@
 import sqlite3
+import os
 
 from ..scraping.utils.helpers import get_sites
 
-ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
-DATA_PATH = ABSOLUTE_PATH + "data/"
-DATABASE_PATH = DATA_PATH + "database/"
+ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 def news_columns() -> dict:
     return {
@@ -32,7 +31,7 @@ def get_db_names(test=False) -> list[str]:
 def connect(db: str) -> sqlite3.Connection:
     if db.endswith(".db"):
         db = db[:-3]
-    return sqlite3.connect(DATABASE_PATH + db.lower() + ".db")
+    return sqlite3.connect(ABSOLUTE_PATH + db.lower() + ".db")
 
 def create_table(db: str, columns: dict = None, index_column: str = None) -> str:
     if db.endswith(".db"):
@@ -53,18 +52,20 @@ def create_table(db: str, columns: dict = None, index_column: str = None) -> str
 
 
 def insert_data(db: str, columns: dict = None) -> str:
+    check_headline = f" WHERE NOT EXISTS (SELECT 1 FROM {db} WHERE headline = {column['headline']})" if "news" in db.lower() else ""
     if db.endswith(".db"):
         db = db[:-3]
     query = f"INSERT INTO {db} ("
     for column in columns:
         query += f"{column}, "
-    query = query[:-2] + ") VALUES ("
+    query = query[:-2] + ") SELECT "
     for _ in range(len(columns)):
         query += "?, "
-    query = query[:-2] + ")"
+    query = query[:-2] + check_headline
     return query
 
-def write_to_db(db: str, data: tuple, columns: dict = None) -> None:
+
+def write_to_db(db: str, data: tuple, columns: dict = None, index_column: str = None) -> None:
     conn = connect(db)
     cursor = conn.cursor()
 
@@ -72,11 +73,14 @@ def write_to_db(db: str, data: tuple, columns: dict = None) -> None:
         columns = news_columns()
 
     try:
-        cursor.execute(create_table(db, columns))
-        cursor.execute(insert_data(db, columns), data)
+        create_table_query = create_table(db, columns, index_column)
+        cursor.execute(create_table_query)
+
+        insert_data_query = insert_data(db, columns)
+        cursor.execute(insert_data_query, data)
         conn.commit()
     except sqlite3.IntegrityError:
-        print("Data already exists in database")
+        print("Data already exists in database: ", data)
     finally:
         conn.close()
 

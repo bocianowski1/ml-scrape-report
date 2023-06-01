@@ -1,33 +1,39 @@
-import threading
-from queue import Queue
-import requests
+import asyncio
+import aiohttp
+import os
 
-ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
-DATA_PATH = ABSOLUTE_PATH + "data/"
-SCRAPING_PATH = DATA_PATH + "scraping/"
+ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+SCRAPING_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/"
 PROXY_PATH = SCRAPING_PATH + "proxy/"
 
-q = Queue()
-# test_url = "http://ipinfo.io/json"
 test_url = "https://finance.yahoo.com/topic/earnings"
 
-with open(PROXY_PATH + "proxies_all.txt") as f:
-    proxies = f.read().splitlines()
-    for proxy in proxies:
-        q.put(proxy)
+async def check_proxies(proxy_queue):
+    async with aiohttp.ClientSession() as session:
+        while not proxy_queue.empty():
+            proxy = proxy_queue.get()
+            try:
+                async with session.get(test_url, proxy=proxy) as response:
+                    if response.status == 200:
+                        with open(SCRAPING_PATH + "proxies.txt", "a") as f:
+                            f.write(proxy + "\n")
+            except aiohttp.ClientError:
+                continue
 
-def check_proxies():
-    global q
-    while not q.empty():
-        proxy = q.get()
-        try:
-            r = requests.get(test_url, proxies={"http": proxy, "https": proxy})
-        except:
-            continue
-        if r.status_code == 200:
-            with open(SCRAPING_PATH + "proxies.txt", "a") as f:
-                f.write(proxy + "\n")
+async def main():
+    proxy_queue = asyncio.Queue()
 
+    with open(PROXY_PATH + "proxies_all.txt") as f:
+        proxies = f.read().splitlines()
+        for proxy in proxies:
+            await proxy_queue.put(proxy)
 
-for _ in range(10):
-    threading.Thread(target=check_proxies).start()
+    tasks = []
+    for _ in range(10):
+        task = asyncio.create_task(check_proxies(proxy_queue))
+        tasks.append(task)
+
+    await asyncio.gather(*tasks)
+
+# if __name__ == "__main__":
+#     asyncio.run(main())

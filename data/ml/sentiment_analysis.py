@@ -11,12 +11,7 @@ import re
 import pandas as pd
 import os
 
-from .utils.helpers import current_time
-
-ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
-DATA_PATH = ABSOLUTE_PATH + "data/"
-ML_PATH = DATA_PATH + "ml/"
-RESULTS_PATH = DATA_PATH + "results/"
+ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 def preprocess_text(text: str) -> str:
     text = text.lower()
@@ -62,7 +57,7 @@ def get_sentiment(text, model, tokenizer, labels):
 
     return labels[scores.argmax()], round(scores.max(), 4)
 
-def analyze_dataframe(df, texts, model, tokenizer, labels, save_df: bool = False) -> None:
+def analyze_dataframe(df, texts, model, tokenizer, labels) -> None:
     if isinstance(texts, pd.Series):
         texts = texts.tolist()
     texts = [preprocess_text(text) for text in texts]
@@ -98,9 +93,6 @@ def analyze_dataframe(df, texts, model, tokenizer, labels, save_df: bool = False
 
     df["Sentiment"] = sentiments
     df["Confidence"] = confidences
-
-    if save_df:
-        df.to_csv(f"{RESULTS_PATH}/sentiment-analysis-{current_time()}.csv", index=False)
 
 class Term:
     SHORT = "short"

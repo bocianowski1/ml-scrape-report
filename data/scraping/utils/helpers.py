@@ -33,8 +33,8 @@ def clean_column_name(name: str) -> str:
     if name.startswith("%"):
         name = "perc_" + name[1:]
     cleaned_string = re.sub(r'[^a-zA-Z0-9 ]', '', name).strip()
-    if "52" in cleaned_string:
-        cleaned_string = cleaned_string.replace("52", "fifty_two")
+    if cleaned_string.startswith("52"):
+        cleaned_string = "fifty_two" + cleaned_string[2:]
     return cleaned_string.replace(' ', '_').lower()
 
 def random_index(length: int) -> int:

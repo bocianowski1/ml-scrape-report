@@ -1,17 +1,17 @@
 import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
-import time
+import os
 
-from .utils.helpers import clean_value, get_sites, get_proxies, random_index
-from .utils.helpers import print_progress, print_results, clean_column_name
+from .utils.helpers import clean_value, get_sites, get_proxies, random_index, clean_column_name
 from .browser.selenium_browser import parse, soupify, get_popup
 from ..ml.sentiment_analysis import get_sentiment
 from ..database.db import write_to_db
 
 
 CONNECTOR_LIMIT = 50
-ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
+# ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
+ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 DATA_PATH = ABSOLUTE_PATH + "data/"
 SCRAPING_PATH = DATA_PATH + "scraping/"
 RESULTS_PATH = DATA_PATH + "results/"
@@ -150,6 +150,7 @@ async def scrape(test=False, model_params: tuple = None) -> list[dict]:
 
 
 # if __name__ == "__main__":
+#     import time
 #     start_time = time.time()
 
 #     loop = asyncio.get_event_loop()
