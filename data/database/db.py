@@ -38,7 +38,7 @@ def create_table(db: str, columns: dict = None, index_column: str = None) -> str
         db = db[:-3]
     if "news" in db.lower():
         columns = news_columns()
-        index_column = "headline"
+        # index_column = "headline"
     query = f"CREATE TABLE IF NOT EXISTS {db} (id INTEGER PRIMARY KEY, "
     for column, data_type in columns.items():
         query += f"{column} {data_type}, "
@@ -52,7 +52,7 @@ def create_table(db: str, columns: dict = None, index_column: str = None) -> str
 
 
 def insert_data(db: str, columns: dict = None) -> str:
-    check_headline = f" WHERE NOT EXISTS (SELECT 1 FROM {db} WHERE headline = {column['headline']})" if "news" in db.lower() else ""
+    # check_headline = f" WHERE NOT EXISTS (SELECT 1 FROM {db} WHERE headline = {column['headline']})" if "news" in db.lower() else ""
     if db.endswith(".db"):
         db = db[:-3]
     query = f"INSERT INTO {db} ("
@@ -61,7 +61,7 @@ def insert_data(db: str, columns: dict = None) -> str:
     query = query[:-2] + ") SELECT "
     for _ in range(len(columns)):
         query += "?, "
-    query = query[:-2] + check_headline
+    query = query[:-2] # + check_headline
     return query
 
 
@@ -69,13 +69,17 @@ def write_to_db(db: str, data: tuple, columns: dict = None, index_column: str = 
     conn = connect(db)
     cursor = conn.cursor()
 
-    if not columns:
+    if not columns and "news" in db.lower():
         columns = news_columns()
 
     try:
         create_table_query = create_table(db, columns, index_column)
         cursor.execute(create_table_query)
+        conn.commit()
+    except sqlite3.OperationalError:
+        print("Table already exists: ", db)
 
+    try:
         insert_data_query = insert_data(db, columns)
         cursor.execute(insert_data_query, data)
         conn.commit()
@@ -91,13 +95,11 @@ def query_db(db: str, query: str) -> list:
     try:
         cursor.execute(query)
         results = cursor.fetchall()
+        return results
     except Exception as e:
-        print("Could not query database")
-        print(e)
+        raise e
     finally:
         conn.close()
-
-    return results
 
 def drop_table(db: str) -> str:
     db = db.lower()
@@ -108,8 +110,7 @@ def drop_table(db: str) -> str:
         conn.commit()
         print(f"Dropped table {db}")
     except Exception as e:
-        print("Could not drop table")
-        print(e)
+        raise e
     finally:
         conn.close()
 

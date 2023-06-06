@@ -2,6 +2,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
 import openai
 import torch
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -12,8 +13,22 @@ import pandas as pd
 import os
 
 ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
+nltk_downloads_completed = False
+
+def nltk_downloads():
+    global nltk_downloads_completed
+    if not nltk_downloads_completed:
+        nltk.download("stopwords")
+        nltk.download("punkt")
+        nltk.download("wordnet")
+        nltk_downloads_completed = True
 
 def preprocess_text(text: str) -> str:
+    try:
+        nltk_downloads()
+    except:
+        pass
+
     text = text.lower()
 
     text = re.sub(r"http\S+|www\S+|https\S+", "", text)

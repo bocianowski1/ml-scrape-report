@@ -39,8 +39,8 @@ def get_popup(html_info: dict, parse_info: dict):
 def remove_popup(driver: webdriver.Firefox, popup: dict) -> None:
     try:
         if popup["scroll_button"]:
-            driver.find_element_by_id(popup["scroll_button"]).click()
-        driver.find_element_by_name(popup["reject"]).click()
+            driver.find_element(By.ID, popup["scroll_button"]).click()
+            driver.find_element(By.NAME, popup["reject"]).click()
     except Exception as e:
         print(f"\nERROR @ remove_popup()\n{e}")
         return None
@@ -66,11 +66,9 @@ async def parse(url: str, sleep: float = 1.0, popup: dict = None, scroll: bool =
         return html
     except Exception as e:
         print(f"\nERROR @ parse()\nurl: {url}")
-        print(e)
-        return url
+        raise e
 
 def scroll_down(driver: webdriver.Firefox, sleep: float = 0.5, num_iters: int = 5) -> None:
-    print("enter scroll_down()")
     print("scrolling...")
     for _ in range(num_iters):
         html = driver.find_element(By.TAG_NAME, 'html')

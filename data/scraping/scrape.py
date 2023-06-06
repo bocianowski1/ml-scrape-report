@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
 import os
+from numba import njit
 
 from .utils.helpers import clean_value, get_sites, get_proxies, random_index, clean_column_name
 from .browser.selenium_browser import parse, soupify, get_popup
@@ -42,7 +43,7 @@ async def get_table_data(session: aiohttp.ClientSession, url: str, db_name: str,
             print("table rows not found")
             return []
 
-        data = []
+        # data = []
         for row in table_rows:
             item = {}
             for i, cell in enumerate(row.find_all("td")):
@@ -60,6 +61,7 @@ async def get_table_data(session: aiohttp.ClientSession, url: str, db_name: str,
         # if filename:
         #     write_csv(headers, data, filename)
         # return data
+
 
 async def get_list_data(session: aiohttp.ClientSession, url: str, db_name: str, parse_info: dict = None, proxy: str = None,
                         html_info: dict = None, model_params: tuple = None):
@@ -93,7 +95,8 @@ async def get_list_data(session: aiohttp.ClientSession, url: str, db_name: str, 
                 # data.append(NewsArticle(headline=headline, description=description))
                 text = headline + "\n\n" + description
                 sentiment, confidence = get_sentiment(text, *model_params)
-                write_to_db(db_name, (headline, description, sentiment, str(confidence)), columns=None)
+                values = (headline, description, sentiment, str(confidence))
+                write_to_db(db_name, values)
             else:
                 continue
         # return data

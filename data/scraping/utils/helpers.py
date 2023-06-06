@@ -2,10 +2,11 @@ import csv
 import json
 import random
 import re
+import os
 
-ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
+ABSOLUTE_PATH = os.path.dirname(__file__) + "/"
 DATA_PATH = ABSOLUTE_PATH + "data/"
-SCRAPING_PATH = DATA_PATH + "scraping/"
+SCRAPING_PATH = ABSOLUTE_PATH[:-6]
 RESULTS_PATH = DATA_PATH + "results/"
 
 def clean_value(value: str) -> str:

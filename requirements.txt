@@ -1,6 +1,6 @@
 # openbb
-# snscrape
 # openbb and snscrape depend on rust
+snscrape
 python-dotenv
 selenium
 bs4
@@ -16,3 +16,4 @@ transformers
 scipy
 openai
 plotly
+fpdf
