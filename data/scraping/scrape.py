@@ -11,7 +11,6 @@ from ..database.db import write_to_db
 
 
 CONNECTOR_LIMIT = 50
-# ABSOLUTE_PATH = "/Users/torgerbocianowski/Desktop/Projects/pelagi/"
 ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__)) + "/"
 DATA_PATH = ABSOLUTE_PATH + "data/"
 SCRAPING_PATH = DATA_PATH + "scraping/"

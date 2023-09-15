@@ -28,8 +28,8 @@ def attach_pdf(email: EmailMessage, pdf_path: str) -> None:
     email.attach(attach)
 
 def send_email(body: str, receivers: str = None, subject: str = "Weekly Report", 
-               pdf_path: str = "../../pelagi-report.pdf") -> None:
-    sender = EMAIL_SENDER # pelagi@gmail.com
+               pdf_path: str = "../../report.pdf") -> None:
+    sender = EMAIL_SENDER
     email = MIMEMultipart()
     email["from"] = sender
     email["to"] = format_receivers(receivers) if receivers else receiver_emails()

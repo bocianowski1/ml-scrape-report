@@ -2,15 +2,15 @@ from dotenv import load_dotenv
 import asyncio
 import time
 
-# from report.pdf import PDF
+from report.pdf import PDF
 from data.scraping.scrape import scrape
-from data.database.db import drop_all_tables, drop_table, query_db, get_db_names
+from data.database.db import drop_all_tables, query_db, get_db_names
 from data.ml.sentiment_analysis import load_model
 
 
-# def make_report():
-#     pdf = PDF(title="Pelagi Report")
-#     pdf.output("pelagi-report.pdf")
+def make_report():
+    pdf = PDF(title="Report")
+    pdf.output("report.pdf")
 
 
 def main(test=False) -> None:

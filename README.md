@@ -1,1 +1,1 @@
-# Pelagi Analytics
+# Analytics

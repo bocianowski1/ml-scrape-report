@@ -6,7 +6,7 @@ import pandas as pd
 def login() -> None:
     print("Logging in...")
     try:
-        openbb.login("pelagianalytics@gmail.com", os.environ.get("OPENBB_PASSWORD"))
+        openbb.login(os.environ.get("OPENBB_EMAIL"), os.environ.get("OPENBB_PASSWORD"))
     except:
         print("Login failed. Please check your credentials and try again.")
 
